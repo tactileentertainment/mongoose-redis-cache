@@ -61,14 +61,17 @@ mongooseRedisCache = (mongoose, options, callback) ->
     schemaOptions = model.schema.options
     collectionName = model.collection.name
     expires = @_mongooseOptions.redisExpires || schemaOptions.expires || 60
+    cacheEmpty = @_mongooseOptions.redisCacheEmpty || true
 
     # We only use redis cache of user specified to use cache on the schema,
     # and it will only execute if the call is a lean call.
     unless schemaOptions.redisCache and @_mongooseOptions.redisCache and @_mongooseOptions.lean
+      delete @_mongooseOptions.redisCacheEmpty
       delete @_mongooseOptions.redisCache
       delete @_mongooseOptions.redisExpires
       return mongoose.Query::_exec.apply self, arguments
 
+    delete @_mongooseOptions.redisCacheEmpty
     delete @_mongooseOptions.redisCache
     delete @_mongooseOptions.redixExpires
 
@@ -94,8 +97,12 @@ mongooseRedisCache = (mongoose, options, callback) ->
 
         mongoose.Query::_exec.call self, (err, docs) ->
           if err then return callback err
-          str = JSON.stringify docs
-          client.setex key, expires, str
+          
+          # Only store results in cache if soemthing returned from mongo or if we have been asked to cache empty results
+          if cacheEmpty or docs.length > 0
+            str = JSON.stringify docs
+            client.setex key, expires, str
+          
           callback null, docs
       else
         # Key is found, yay! Return the baby!
