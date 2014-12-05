@@ -51,7 +51,10 @@ mongooseRedisCache = function(mongoose, options, callback) {
     schemaOptions = model.schema.options;
     collectionName = model.collection.name;
     expires = this._mongooseOptions.redisExpires || schemaOptions.expires || 60;
-    cacheEmpty = this._mongooseOptions.redisCacheEmpty || true;
+    cacheEmpty = true;
+    if (typeof this._mongooseOptions.redisCacheEmpty !== 'undefined') {
+      cacheEmpty = this._mongooseOptions.redisCacheEmpty;
+    }
     if (!(schemaOptions.redisCache && this._mongooseOptions.redisCache && this._mongooseOptions.lean)) {
       delete this._mongooseOptions.redisCacheEmpty;
       delete this._mongooseOptions.redisCache;

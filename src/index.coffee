@@ -61,7 +61,9 @@ mongooseRedisCache = (mongoose, options, callback) ->
     schemaOptions = model.schema.options
     collectionName = model.collection.name
     expires = @_mongooseOptions.redisExpires || schemaOptions.expires || 60
-    cacheEmpty = @_mongooseOptions.redisCacheEmpty || true
+    cacheEmpty = true
+    if typeof @_mongooseOptions.redisCacheEmpty isnt 'undefined'
+      cacheEmpty = @_mongooseOptions.redisCacheEmpty
 
     # We only use redis cache of user specified to use cache on the schema,
     # and it will only execute if the call is a lean call.
