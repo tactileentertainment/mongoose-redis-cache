@@ -101,7 +101,7 @@ mongooseRedisCache = (mongoose, options, callback) ->
           if err then return callback err
           
           # Only store results in cache if soemthing returned from mongo or if we have been asked to cache empty results
-          if cacheEmpty or docs.length > 0
+          if cacheEmpty or (docs and (not _.isArray(docs) or docs.length > 0))
             str = JSON.stringify docs
             client.setex key, expires, str
           

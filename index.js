@@ -84,7 +84,7 @@ mongooseRedisCache = function(mongoose, options, callback) {
           if (err) {
             return callback(err);
           }
-          if (cacheEmpty || docs.length > 0) {
+          if (cacheEmpty || (docs && (!_.isArray(docs) || docs.length > 0))) {
             str = JSON.stringify(docs);
             client.setex(key, expires, str);
           }
