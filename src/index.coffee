@@ -30,6 +30,7 @@ mongooseRedisCache = (mongoose, options, callback) ->
   host = options.host || ""
   port = options.port || ""
   pass = options.pass || ""
+  db = options.db || ""
   redisOptions = options.options || {}
   prefix = options.prefix || "cache"
 
@@ -39,6 +40,10 @@ mongooseRedisCache = (mongoose, options, callback) ->
     client.auth pass, (err) ->
       if callback then return callback err
 
+  if db.length > 0
+    client.select db, (err) ->
+      if callback then return callback err
+	
   # Cache original exec function so that
   # we can use it later
   mongoose.Query::_exec = mongoose.Query::exec

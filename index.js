@@ -22,18 +22,26 @@ RegExp.prototype.toJSON = function() {
 };
 
 mongooseRedisCache = function(mongoose, options, callback) {
-  var client, host, pass, port, prefix, redisOptions;
+  var client, db, host, pass, port, prefix, redisOptions;
   if (options == null) {
     options = {};
   }
   host = options.host || "";
   port = options.port || "";
   pass = options.pass || "";
+  db = options.db || "";
   redisOptions = options.options || {};
   prefix = options.prefix || "cache";
   mongoose.redisClient = client = redis.createClient(port, host, redisOptions);
   if (pass.length > 0) {
     client.auth(pass, function(err) {
+      if (callback) {
+        return callback(err);
+      }
+    });
+  }
+  if (db.length > 0) {
+    client.select(db, function(err) {
       if (callback) {
         return callback(err);
       }
